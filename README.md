@@ -1,1 +1,1 @@
-# js-post-ui
+# Blog Javascript
