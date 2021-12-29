@@ -1,6 +1,29 @@
 import postApi from './api/postApi'
-import { initPagination, renderPagination, initSearch, renderPostLists } from './utils'
-import { handleFilterChange } from './utils/filter'
+import { initPagination, renderPagination } from './utils/pagination'
+import { renderPostLists } from './utils/post'
+import { initSearch } from './utils/search'
+
+async function handleFilterChange(filterName, filterValue) {
+  try {
+    // update query params
+    const url = new URL(window.location)
+    url.searchParams.set(filterName, filterValue)
+
+    // reset page if needed
+    if (filterName === 'title_like') url.searchParams.set('_page', 1)
+    history.pushState({}, '', url)
+
+    // fetch API
+    const { data, pagination } = await postApi.getAll(url.searchParams)
+
+    renderPostLists('postList', data)
+    renderPagination('pagination', pagination)
+    // re-render postlist
+  } catch (error) {
+    console.log('error', error)
+  }
+}
+
 ;(async () => {
   try {
     // update query params
@@ -24,8 +47,8 @@ import { handleFilterChange } from './utils/filter'
     })
 
     const { data, pagination } = await postApi.getAll(queryParams)
-    renderPostLists(data)
-    renderPagination(pagination)
+    renderPostLists('postList', data)
+    renderPagination('pagination', pagination)
   } catch (error) {
     console.log('error', error)
   }

@@ -1,8 +1,5 @@
-import { getPaginationElement } from '.'
-import { handleFilterChange } from './filter'
-
-export function renderPagination(pagination) {
-  const ulPagination = getPaginationElement()
+export function renderPagination(elementID, pagination) {
+  const ulPagination = document.getElementById(elementID)
   if (!pagination || !ulPagination) return
 
   // calc totalPage
@@ -21,39 +18,30 @@ export function renderPagination(pagination) {
   else ulPagination.lastElementChild?.classList.remove('disabled')
 }
 
-export function handlePrevLink(e) {
-  e.preventDefault()
-  const ulPagination = getPaginationElement()
-  if (!ulPagination) return
-
-  const page = Number.parseInt(ulPagination.dataset.page)
-  if (page <= 1) return
-
-  handleFilterChange('_page', page - 1)
-}
-
-export function handleNextLink(e) {
-  e.preventDefault()
-
-  const ulPagination = getPaginationElement()
-  if (!ulPagination) return
-
-  const page = Number.parseInt(ulPagination.dataset.page) || 1
-  const totalPages = ulPagination.dataset.totalPages
-  if (page >= totalPages) return
-
-  handleFilterChange('_page', page + 1)
-}
-
-export function initPagination() {
-  const ulPagination = getPaginationElement()
+export function initPagination({ elementID, defaultParams, onChange }) {
+  const ulPagination = document.getElementById(elementID)
+  console.log(ulPagination)
   if (!ulPagination) return
 
   // add click event for prev link
   const prevLink = ulPagination.firstElementChild?.firstElementChild
-  if (prevLink) prevLink.addEventListener('click', handlePrevLink)
+  if (prevLink)
+    prevLink.addEventListener('click', (e) => {
+      console.log('prev click')
+      e.preventDefault()
+      const page = Number.parseInt(ulPagination.dataset.page)
+      if (page > 2) onChange?.(page - 1)
+    })
 
   // add click event for next link
   const nextLink = ulPagination.lastElementChild?.firstElementChild
-  if (nextLink) nextLink.addEventListener('click', handleNextLink)
+  if (nextLink)
+    nextLink.addEventListener('click', (e) => {
+      console.log('next click')
+
+      e.preventDefault()
+      const page = Number.parseInt(ulPagination.dataset.page) || 1
+      const totalPages = ulPagination.dataset.totalPages
+      if (page < totalPages) onChange?.(page + 1)
+    })
 }

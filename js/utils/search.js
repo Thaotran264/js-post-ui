@@ -1,16 +1,12 @@
 import debounce from 'lodash.debounce'
-import { handleFilterChange } from './filter'
 
-export function initSearch() {
-  const searchInput = document.getElementById('searchInput')
+export function initSearch({ elementID, defaultParams, onChange }) {
+  const searchInput = document.getElementById(elementID)
   if (!searchInput) return
 
-  const queryParams = new URLSearchParams(window.location.search)
-  if (queryParams.get('title_like')) searchInput.value = queryParams.get('title_like')
+  if (defaultParams && defaultParams.get('title_like'))
+    searchInput.value = defaultParams.get('title_like')
 
-  const debounceSearch = debounce(
-    (event) => handleFilterChange('title_like', event.target.value),
-    500
-  )
+  const debounceSearch = debounce((e) => onChange?.(e.target.value), 500)
   searchInput.addEventListener('input', debounceSearch)
 }
