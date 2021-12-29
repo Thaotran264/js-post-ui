@@ -31,10 +31,10 @@ export function createPostElement(post) {
   return liElement
 }
 
-export function renderPostLists(postList) {
+export function renderPostLists(elementID, postList) {
   if (!Array.isArray(postList)) return
 
-  const ulElement = document.getElementById('postList')
+  const ulElement = document.getElementById(elementID)
   if (!ulElement) return
 
   // clear current ul
