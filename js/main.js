@@ -8,7 +8,6 @@ async function main() {
       _limit: 5,
     }
     const response = await postApi.getAll(queryParams)
-    console.log('response', response)
   } catch (error) {
     console.log('error', err)
   }
