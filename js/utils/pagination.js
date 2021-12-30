@@ -30,7 +30,7 @@ export function initPagination({ elementID, defaultParams, onChange }) {
       console.log('prev click')
       e.preventDefault()
       const page = Number.parseInt(ulPagination.dataset.page)
-      if (page > 2) onChange?.(page - 1)
+      if (page > 1) onChange?.(page - 1)
     })
 
   // add click event for next link

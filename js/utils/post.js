@@ -22,12 +22,18 @@ export function createPostElement(post) {
     thumbnailElement.src = post.imageUrl
 
     thumbnailElement.addEventListener('error', () => {
-      thumbnailElement.src = 'https://via.placeholder.com/1768x400.png?text=thumbnail'
+      thumbnailElement.src = 'https://via.placeholder.com/1368x400.png?text=thumbnail'
     })
   }
 
   setTextContent(liElement, '[data-id="timeSpan"]', `- ${dayjs(post.createdAt).fromNow()}`)
+  // go to post detail
+  const divElement = liElement.firstElementChild
+  if (!divElement) return
 
+  divElement.addEventListener('click', () => {
+    window.location.assign(`/post-detail.html?id=${post.id}`)
+  })
   return liElement
 }
 
