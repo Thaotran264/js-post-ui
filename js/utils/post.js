@@ -29,11 +29,23 @@ export function createPostElement(post) {
   setTextContent(liElement, '[data-id="timeSpan"]', `- ${dayjs(post.createdAt).fromNow()}`)
   // go to post detail
   const divElement = liElement.firstElementChild
-  if (!divElement) return
+  if (divElement) {
+    divElement.addEventListener('click', (e) => {
+      // s2:
+      const menu = liElement.querySelector('[data-id="menu"]')
+      if (menu && menu.contains(e.target)) return
+      window.location.assign(`/post-detail.html?id=${post.id}`)
+    })
+  }
 
-  divElement.addEventListener('click', () => {
-    window.location.assign(`/post-detail.html?id=${post.id}`)
-  })
+  const editButton = liElement.querySelector('[data-id="edit"]')
+  if (editButton) {
+    editButton.addEventListener('click', (e) => {
+      //
+      // s1: e.stopPropagation()
+      window.location.assign(`/add-edit-post.html?id=${post.id}`)
+    })
+  }
   return liElement
 }
 
