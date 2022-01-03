@@ -1,6 +1,6 @@
 import * as yup from 'yup'
 import { ValidationError } from 'yup'
-import { setTextContent, setFieldValue, setBackgroundImage } from './common'
+import { setTextContent, setFieldValue, setBackgroundImage, randomNumber } from './common'
 
 function setFormValue(form, formValues) {
   setFieldValue(form, '[name=title]', formValues?.title)
@@ -23,6 +23,7 @@ function getPostSchema() {
         (value) => value.split(' ').filter((x) => !!x && x.length >= 3).length >= 2
       ),
     description: yup.string(),
+    imageUrl: yup.string().required('Please select an image').url('Please enter a valid url'),
   })
 }
 
@@ -36,7 +37,7 @@ function setFieldError(form, name, error) {
 
 async function validatePostForm(form, formValues) {
   try {
-    ;['title', 'author'].forEach((name) => setFieldError(form, name, ''))
+    ;['title', 'author', 'imageUrl'].forEach((name) => setFieldError(form, name, ''))
 
     const schema = getPostSchema()
     await schema.validate(formValues, { abortEarly: false })
@@ -82,21 +83,96 @@ function getFormValues(form) {
   return formValues
 }
 
+function showLoading(form) {
+  const button = form.querySelector('[name="submit"]')
+
+  if (button) {
+    console.log('true')
+    button.disabled = true
+    button.textContent = 'Saving!!!'
+  }
+}
+
+function hideLoading(form) {
+  const button = form.querySelector('[name="submit"]')
+  if (button) {
+    button.disabled = false
+    button.textContent = 'Save!!!'
+  }
+}
+
+let submitting = false
+
+function renderImageSourceControl(form, selectedValue) {
+  const controlList = form.querySelectorAll('[data-id="imageSource"]')
+  controlList.forEach((control) => {
+    control.hidden = control.dataset.imageSource !== selectedValue
+  })
+}
+
+function initRadioImageSource(form) {
+  const radioList = form.querySelectorAll('[name="imageSource"]')
+  console.log(radioList)
+
+  radioList.forEach((radio) => {
+    radio.addEventListener('change', (event) => renderImageSourceControl(form, event.target.value))
+  })
+}
+
+function initRandomImage(form) {
+  const randomButton = document.getElementById('postChangeImage')
+  if (!randomButton) return
+
+  randomButton.addEventListener('click', () => {
+    const imageUrl = `https://picsum.photos/id/${randomNumber(1000)}/367/267`
+
+    setFieldValue(form, '[name=imageUrl]', imageUrl)
+    setBackgroundImage(document, '#postHeroImage', imageUrl)
+  })
+}
+
+function initUploadImage(form) {
+  const uploadImage = form.querySelector('[name="image"]')
+  if (!uploadImage) return
+
+  uploadImage.addEventListener('change', (event) => {
+    console.log('selected file', event.target.files[0])
+    const file = event.target.files[0]
+    if (file) {
+      const imageUrl = URL.createObjectURL(file)
+      console.log(imageUrl)
+      setBackgroundImage(document, '#postHeroImage', imageUrl)
+    }
+  })
+}
+
 export function initPostForm({ formID, defaultValue, onSubmit }) {
   const form = document.getElementById(formID)
   if (!form) return
 
   setFormValue(form, defaultValue)
+  initRandomImage(form)
+  initRadioImageSource(form)
+  initUploadImage(form)
 
   form.addEventListener('submit', async (event) => {
     event.preventDefault()
+    if (submitting) {
+      console.log('submit ')
+      return
+    }
+    showLoading(form)
+    submitting = true
 
     const formValues = getFormValues(form)
     formValues.id = defaultValue.id
 
     const isValid = await validatePostForm(form, formValues)
-    if (!isValid) return
+    if (isValid) {
+      await onSubmit?.(formValues)
+    }
 
-    onSubmit?.(formValues)
+    hideLoading(form)
+    submitting = false
   })
 }

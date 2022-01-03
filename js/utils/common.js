@@ -21,3 +21,10 @@ export function setBackgroundImage(parent, selector, imageURL) {
 
   if (element) element.style.backgroundImage = `url("${imageURL}")`
 }
+
+export function randomNumber(n) {
+  if (n <= 0) return
+
+  const random = Math.random() * n
+  return Math.round(random)
+}
